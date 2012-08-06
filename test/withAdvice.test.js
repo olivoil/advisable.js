@@ -8,11 +8,11 @@ var beforeWalk, beforeSpeak;
 
 module.exports = {
   'it has a version': function() {
-    assert.equal(withAdvice.version, '0.0.1');
+    assert(withAdvice.version);
   },
 
   'it adds methods to a prototype': function() {
-    var Crocodile = withAdvice.create(animals.crocodile, advice.withWalking, advice.withSwimming);
+    var Crocodile = withAdvice.compose(animals.crocodile, advice.withWalking, advice.withSwimming);
     var croc = new Crocodile({gender: 'Male', weight: 10, length: 0.5, age: 0.5});
 
     assert(croc.walk);
@@ -23,7 +23,7 @@ module.exports = {
   },
 
   'it adds methods to an instance': function() {
-    var Elephant = withAdvice.create(animals.elephant);
+    var Elephant = withAdvice.compose(animals.elephant);
     var jumbo = new Elephant({gender: 'male', weight: 50, length: 0.5, age: 0.5});
 
     advice.withWalking.call(jumbo);
@@ -54,7 +54,7 @@ module.exports = {
     },
 
     'it augments a prototype function': function() {
-      var Duck = withAdvice.create(animals.duck, advice.withSpeech, advice.withWalking);
+      var Duck = withAdvice.compose(animals.duck, advice.withSpeech, advice.withWalking);
       advice.withFlu.call(Duck.prototype);
 
       var donald = new Duck({gender: 'male', weight: 1, length: 0.1, age: 2});

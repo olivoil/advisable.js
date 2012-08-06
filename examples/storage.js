@@ -2,7 +2,7 @@ var withAdvice = require('./..');
 
 // # Storage Example
 //
-// Build the base for the prototype (encode and decode will be attached to the prototype when calling withAdvice.create).
+// Build the base for the prototype (encode and decode will be attached to the prototype when calling withAdvice.compose).
 //
 
 function baseStorage() {
@@ -78,11 +78,11 @@ function withEncryption() {
 
 
 //
-// Apply and compose the different aspects to create constructor functions:
+// Apply and compose the different aspects to compose constructor functions:
 //
 
-var LocalStorage = withAdvice.create(baseStorage, localStorageEngine, withEncryption);
-var MemoryStorage = withAdvice.create(baseStorage, memoryStorageEngine, withEncryption);
+var LocalStorage = withAdvice.compose(baseStorage, localStorageEngine, withEncryption);
+var MemoryStorage = withAdvice.compose(baseStorage, memoryStorageEngine, withEncryption);
 
 var localStorage  = new LocalStorage({namespace: 'withAdviceLibrary', secret: '1234'});
 var memoryStorage = new MemoryStorage({namespace: 'withAdviceLibrary', secret: '1234'});
