@@ -1,0 +1,110 @@
+<!DOCTYPE html>  <html> <head>   <title>withAdvice.js</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               withAdvice.js             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>                            </td>             <td class="code">               <div class="highlight"><pre><span class="cm">/*!</span>
+<span class="cm"> * withAdvice</span>
+<span class="cm"> * Copyright(c) 2012 Olivier Melcher &lt;olivier.melcher@gmail.com&gt;</span>
+<span class="cm"> * MIT Licensed</span>
+<span class="cm"> */</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h2>With Advice</h2>
+
+<p>An Aspect-Oriented Library for javascript.
+Inspired by <a href="https://speakerdeck.com/u/anguscroll/p/how-we-learned-to-stop-worrying-and-love-javascript">@angustweets and @danwrong</a>.</p>
+
+<script async class="speakerdeck-embed" data-id="4fc7e727ed0e1d001f022749" data-ratio="1.3333333333333333" src="//speakerdeck.com/assets/embed.js"></script>             </td>             <td class="code">               <div class="highlight"><pre><span class="p">;(</span><span class="kd">function</span><span class="p">(){</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Library version.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">withAdvice</span><span class="p">.</span><span class="nx">version</span> <span class="o">=</span> <span class="s1">&#39;0.0.1&#39;</span><span class="p">;</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>Expose main function</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">if</span> <span class="p">(</span><span class="s1">&#39;undefined&#39;</span> <span class="o">==</span> <span class="k">typeof</span> <span class="nx">exports</span><span class="p">)</span> <span class="p">{</span>
+    <span class="nb">window</span><span class="p">.</span><span class="nx">withAdvice</span> <span class="o">=</span> <span class="nx">withAdvice</span><span class="p">;</span>
+  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+    <span class="nx">module</span><span class="p">.</span><span class="nx">exports</span> <span class="o">=</span> <span class="nx">withAdvice</span><span class="p">;</span>
+  <span class="p">}</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>Noop.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">function</span> <span class="nx">noop</span><span class="p">()</span> <span class="p">{};</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>Extend destination by copying over all properties from source</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">function</span> <span class="nx">extend</span><span class="p">(</span><span class="nx">destination</span><span class="p">,</span> <span class="nx">source</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">k</span> <span class="k">in</span> <span class="nx">source</span><span class="p">)</span> <span class="p">{</span>
+      <span class="k">if</span> <span class="p">(</span><span class="nx">source</span><span class="p">.</span><span class="nx">hasOwnProperty</span><span class="p">(</span><span class="nx">k</span><span class="p">))</span> <span class="p">{</span>
+        <span class="nx">destination</span><span class="p">[</span><span class="nx">k</span><span class="p">]</span> <span class="o">=</span> <span class="nx">source</span><span class="p">[</span><span class="nx">k</span><span class="p">];</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="nx">destination</span><span class="p">;</span>
+  <span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p>Augment an object with AOP methods 'before', 'after', 'around'</p>
+
+<p>Example</p>
+
+<p><code>
+  var Animal = function() { ... };
+  withAdvice.call(Animal.prototype);
+</code></p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">function</span> <span class="nx">withAdvice</span><span class="p">()</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">before</span> <span class="o">=</span> <span class="nx">before</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">after</span>  <span class="o">=</span> <span class="nx">after</span><span class="p">;</span>
+    <span class="k">this</span><span class="p">.</span><span class="nx">around</span> <span class="o">=</span> <span class="nx">around</span><span class="p">;</span>
+  <span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p>Execute aspect before executing method</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">function</span> <span class="nx">before</span><span class="p">(</span><span class="nx">method</span><span class="p">,</span> <span class="nx">aspect</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">[</span><span class="nx">method</span><span class="p">]</span> <span class="o">=</span> <span class="nx">doBefore</span><span class="p">(</span><span class="nx">aspect</span><span class="p">,</span> <span class="k">this</span><span class="p">[</span><span class="nx">method</span><span class="p">]);</span>
+  <span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>Execute aspect after executing method</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">function</span> <span class="nx">after</span><span class="p">(</span><span class="nx">method</span><span class="p">,</span> <span class="nx">aspect</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">this</span><span class="p">[</span><span class="nx">method</span><span class="p">]</span> <span class="o">=</span> <span class="nx">doAfter</span><span class="p">(</span><span class="nx">aspect</span><span class="p">,</span> <span class="k">this</span><span class="p">[</span><span class="nx">method</span><span class="p">]);</span>
+  <span class="p">};</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <p>Execute aspect around executing method</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="kd">function</span> <span class="nx">around</span><span class="p">(</span><span class="nx">method</span><span class="p">,</span> <span class="nx">aspect</span><span class="p">){</span>
+    <span class="k">this</span><span class="p">[</span><span class="nx">method</span><span class="p">]</span> <span class="o">=</span> <span class="nx">doAround</span><span class="p">(</span><span class="nx">aspect</span><span class="p">,</span> <span class="k">this</span><span class="p">[</span><span class="nx">method</span><span class="p">]);</span>
+  <span class="p">};</span>
+
+  <span class="kd">function</span> <span class="nx">doBefore</span><span class="p">(</span><span class="nx">aspect</span><span class="p">,</span> <span class="nx">fn</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">aspect</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+      <span class="k">return</span> <span class="nx">fn</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+    <span class="p">};</span>
+  <span class="p">};</span>
+
+  <span class="kd">function</span> <span class="nx">doAfter</span><span class="p">(</span><span class="nx">aspect</span><span class="p">,</span> <span class="nx">fn</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="nx">result</span> <span class="o">=</span> <span class="nx">aspect</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+      <span class="nx">fn</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+      <span class="k">return</span> <span class="nx">result</span><span class="p">;</span>
+    <span class="p">};</span>
+  <span class="p">};</span>
+
+  <span class="kd">function</span> <span class="nx">doAround</span><span class="p">(</span><span class="nx">aspect</span><span class="p">,</span> <span class="nx">fn</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">aspect</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">fn</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+    <span class="p">};</span>
+  <span class="p">};</span>
+
+  <span class="cm">/**</span>
+<span class="cm">   * Create a new constructor function, based on a prototype blueprint, augmented with the given advice.</span>
+<span class="cm">   * Each property of the blueprint will be added to the prototype of the constructor.</span>
+<span class="cm">   * The constructor function will take a hash of arguments, representing the attributes of the new object.</span>
+<span class="cm">   *</span>
+<span class="cm">   * Examples:</span>
+<span class="cm">   *</span>
+<span class="cm">   *    var animal = function() {</span>
+<span class="cm">   *      this.lifeSpan = 10;</span>
+<span class="cm">   *    };</span>
+<span class="cm">   *</span>
+<span class="cm">   *    var withFlying = function() {</span>
+<span class="cm">   *      this.fly = function() {</span>
+<span class="cm">   *        console.log(&#39;Flying&#39;);</span>
+<span class="cm">   *      };</span>
+<span class="cm">   *    };</span>
+<span class="cm">   *</span>
+<span class="cm">   *    var Bird = withAdvice.create(animal, withFlying);</span>
+<span class="cm">   *    var bird = new Bird({name: &#39;birdie&#39;});</span>
+<span class="cm">   *</span>
+<span class="cm">   *    console.log( bird.lifeSpan );</span>
+<span class="cm">   *    // =&gt; 10</span>
+<span class="cm">   *</span>
+<span class="cm">   *    console.log( bird.name );</span>
+<span class="cm">   *    // =&gt; &quot;birdie&quot;</span>
+<span class="cm">   *</span>
+<span class="cm">   *    bird.fly();</span>
+<span class="cm">   *    // =&gt; &quot;Flying&quot;</span>
+<span class="cm">   *</span>
+<span class="cm">   * @param {Function} blueprint</span>
+<span class="cm">   * @param {Function} advice</span>
+<span class="cm">   * @api public</span>
+<span class="cm">   */</span>
+
+  <span class="nx">withAdvice</span><span class="p">.</span><span class="nx">create</span> <span class="o">=</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+    <span class="kd">var</span> <span class="nx">argsArray</span> <span class="o">=</span> <span class="p">[].</span><span class="nx">slice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">arguments</span><span class="p">)</span>
+    <span class="p">,</span> <span class="nx">Ctor</span>      <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">attrs</span><span class="p">)</span> <span class="p">{</span>
+      <span class="nx">extend</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">attrs</span><span class="p">);</span>
+      <span class="k">this</span><span class="p">.</span><span class="nx">initialize</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">);</span>
+    <span class="p">};</span>
+
+    <span class="nx">Ctor</span><span class="p">.</span><span class="nx">prototype</span><span class="p">.</span><span class="nx">initialize</span> <span class="o">=</span> <span class="nx">noop</span><span class="p">;</span>
+    <span class="nx">withAdvice</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">Ctor</span><span class="p">.</span><span class="nx">prototype</span><span class="p">);</span>
+    <span class="nx">argsArray</span><span class="p">.</span><span class="nx">forEach</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">mixin</span><span class="p">)</span> <span class="p">{</span><span class="nx">mixin</span><span class="p">.</span><span class="nx">call</span><span class="p">(</span><span class="nx">Ctor</span><span class="p">.</span><span class="nx">prototype</span><span class="p">)});</span>
+    <span class="k">return</span> <span class="nx">Ctor</span><span class="p">;</span>
+  <span class="p">};</span>
+
+<span class="p">})();</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

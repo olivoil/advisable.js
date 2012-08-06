@@ -1,11 +1,10 @@
 var withAdvice = require('./..')
-  , assert  = require('assert')
-  , expect  = require('chai').expect
-  , advice  = require('./advice')
-  , animals = require('./animals');
+  , assert     = require('assert')
+  , expect     = require('chai').expect
+  , advice     = require('./advice')
+  , animals    = require('./animals');
 
-var beforeWalk
-  , beforeSpeak;
+var beforeWalk, beforeSpeak;
 
 module.exports = {
   'it has a version': function() {
@@ -51,7 +50,7 @@ module.exports = {
       advice.withFlu = function() {
         this.before('walk', beforeWalk);
         this.before('speak', beforeSpeak);
-      }
+      };
     },
 
     'it augments a prototype function': function() {
@@ -62,5 +61,8 @@ module.exports = {
       assert.equal(donald.speak(), 'sniff, quack');
       assert.throws(function() { donald.walk() }, /Too sick to walk/);
     }
-  }
+  },
+
+  '#after': {},
+  '#around': {}
 }

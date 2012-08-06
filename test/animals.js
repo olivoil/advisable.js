@@ -1,5 +1,6 @@
 exports.crocodile = function() {
   this.lifeSpan = 70;
+  this.says = "croc";
   this.haveBirdCleanTeeth = function() { console.log('a bird is cleaning my teeth'); };
   this.stalkTourists      = function() { console.log('stalking tourists'); };
 };
