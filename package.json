@@ -3,6 +3,7 @@
   "name": "withAdvice",
   "description": "AOP library",
   "version": "0.0.2",
+  "repository": { "type": "git", "url": "git://github.com/olivoil/withAdvice.js.git" },
   "dependencies": {
   },
   "devDependencies": {
