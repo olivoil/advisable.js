@@ -2,7 +2,7 @@
   "author": "Olivier Melcher <olivier.melcher@gmail.com>",
   "name": "withAdvice",
   "description": "AOP library",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "dependencies": {
   },
   "devDependencies": {

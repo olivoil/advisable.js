@@ -1,10 +1,10 @@
-/*!
+/**
  * withAdvice
  * Copyright(c) 2012 Olivier Melcher <olivier.melcher@gmail.com>
  * MIT Licensed
  */
-;(function(){
 
+;(function(){
 
   // With Advice
   // -----------
@@ -43,13 +43,15 @@
   };
 
 
-  // Augment an object with AOP methods 'before', 'after', 'around'
+  // ## withAdvice.call
+  //
+  // #### Augment an object with AOP methods 'before', 'after', 'around'
   //
   // Example
   //
   // ```
-  //   var Animal = function() { ... };
-  //   withAdvice.call(Animal.prototype);
+  // var Animal = function() { ... };
+  // withAdvice.call(Animal.prototype);
   // ```
 
   function withAdvice() {
@@ -58,18 +60,21 @@
     this.around = around;
   };
 
+  // ### before
   // Execute aspect before executing method
 
   function before(method, aspect) {
     this[method] = doBefore(aspect, this[method]);
   };
 
+  // ### after
   // Execute aspect after executing method
 
   function after(method, aspect) {
     this[method] = doAfter(aspect, this[method]);
   };
 
+  // ### around
   // Execute aspect around executing method
 
   function around(method, aspect){
@@ -97,39 +102,17 @@
     };
   };
 
-  /**
-   * Create a new constructor function, based on a prototype blueprint, augmented with the given advice.
-   * Each property of the blueprint will be added to the prototype of the constructor.
-   * The constructor function will take a hash of arguments, representing the attributes of the new object.
-   *
-   * Examples:
-   *
-   *    var animal = function() {
-   *      this.lifeSpan = 10;
-   *    };
-   *
-   *    var withFlying = function() {
-   *      this.fly = function() {
-   *        console.log('Flying');
-   *      };
-   *    };
-   *
-   *    var Bird = withAdvice.create(animal, withFlying);
-   *    var bird = new Bird({name: 'birdie'});
-   *
-   *    console.log( bird.lifeSpan );
-   *    // => 10
-   *
-   *    console.log( bird.name );
-   *    // => "birdie"
-   *
-   *    bird.fly();
-   *    // => "Flying"
-   *
-   * @param {Function} blueprint
-   * @param {Function} advice
-   * @api public
-   */
+  // ## withAdvice.create
+  //
+  // #### Compose and returns a new constructor function based on aop aspects.
+  //
+  // The constructor's prototype will be extended with all the modules passed to it as argument.
+  // The prototype of the returned constructor function will have:
+  //
+  // * an `initialize` method that will be called when a new instance is created
+  // * any attribute or method attached to `this` in one of the aspects passed as arguments
+  //
+  // For a complete example, take a look at `examples/storage.js`
 
   withAdvice.create = function() {
     var argsArray = [].slice.call(arguments)

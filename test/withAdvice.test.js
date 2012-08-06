@@ -63,6 +63,9 @@ module.exports = {
     }
   },
 
-  '#after': {},
-  '#around': {}
+  '#after': {
+  },
+
+  '#around': {
+  }
 }
