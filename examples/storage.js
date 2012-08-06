@@ -15,7 +15,7 @@ function baseStorage() {
   this.encode = function(item) { return JSON.stringify(item) };
   this.decode = function(item) { return JSON.parse(item) };
 
-  if (window.localStorage) {
+  if (!('undefined' == typeof window) && window.localStorage) {
     storageEngine.call(this);
     return;
   }
@@ -27,7 +27,7 @@ function baseStorage() {
 
 function localStorageEngine() {
   this.getItem = function(key) {
-    return this.decode(localStorage.getItem(this.namespace + key);
+    return this.decode(localStorage.getItem(this.namespace + key));
   };
 
   this.setItem = function(key, val) {
