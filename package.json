@@ -2,13 +2,13 @@
   "author": "Olivier Melcher <olivier.melcher@gmail.com>",
   "name": "withadvice",
   "description": "AOP library",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "repository": { "type": "git", "url": "git://github.com/olivoil/withAdvice.js.git" },
   "dependencies": {
   },
   "devDependencies": {
-    "mocha": "~1.3.2",
-    "chai": "~1.1.1"
+    "mocha": "latest",
+    "chai": "latest"
   },
   "optionalDependencies": {},
   "engines": {

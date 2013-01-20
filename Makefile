@@ -1,6 +1,8 @@
 SRC = lib/withAdvice.js
+TESTS = $(shell find test -name "*.test.js")
+MOCHA_REPORTER = spec
 
-all: test clean build docs
+all: test clean build
 
 build: withAdvice.js withAdvice.min.js
 
@@ -11,15 +13,12 @@ withAdvice.min.js: withAdvice.js
 	uglifyjs --no-mangle $< > $@
 
 test:
-	@./node_modules/.bin/mocha --ui exports
+	@NODE_ENV=test ./node_modules/mocha/bin/mocha \
+		--reporter $(MOCHA_REPORTER) \
+		--bail \
+		$(TESTS)
 
-clean: docclean
+clean:
 	rm -f withAdvice{,.min}.js
 
-docclean:
-	rm -rf ./docs
-
-docs:
-	docco lib/*
-
-.PHONY: test clean docs docclean build all
+.PHONY: test clean
