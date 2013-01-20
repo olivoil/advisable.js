@@ -8,7 +8,9 @@
   },
   "devDependencies": {
     "mocha": "latest",
-    "chai": "latest"
+    "chai": "latest",
+    "sinon": "latest",
+    "sinon-chai": "latest"
   },
   "optionalDependencies": {},
   "engines": {

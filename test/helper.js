@@ -1,6 +1,14 @@
-var chai = require('chai')
+var chai      = require('chai')
+  , sinonChai = require("sinon-chai")
+  , array     = []
 
-assert     = chai.assert
-expect     = chai.expect
+withAdvice = require('./../lib/withAdvice')
+
+chai.use(sinonChai)
+
+assert = chai.assert
+expect = chai.expect
+sinon  = require('sinon')
+slice  = array.slice
 
 chai.should()
