@@ -1,4 +1,4 @@
-var withAdvice = require('./..');
+if(typeof require !== 'undefined') var withAdvice = require('./..');
 
 /* Storage Example
  * =============== */
@@ -82,5 +82,5 @@ function withEncryption() {
   return this
 }
 
-var storage          = new Storage({namespace: 'namespace'})
-  , encryptedStorage = withEncryption.call(new Storage({namespace: 'encrypted', secret: 'secret'}))
+storage = new Storage({namespace: 'namespace'})
+encryptedStorage = withEncryption.call(new Storage({namespace: 'encrypted', secret: 'secret'}))

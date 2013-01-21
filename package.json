@@ -16,7 +16,9 @@
     "sinon": "latest",
     "sinon-chai": "latest"
   },
-  "optionalDependencies": {},
+  "scripts": {
+    "test": "make test"
+  },
   "engines": {
     "node": "*"
   }
