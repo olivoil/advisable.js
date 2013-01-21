@@ -1,7 +1,7 @@
 SRC = lib/withAdvice.js
 TESTS = $(shell find test -name "*.test.js")
 MOCHA_REPORTER = spec
-TEST_FILE = test/tests.html
+TEST_FILE = test/support/tests.html
 
 all: test clean build
 
