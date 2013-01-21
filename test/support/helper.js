@@ -1,8 +1,8 @@
 var chai      = require('chai')
-  , sinonChai = require("sinon-chai")
+  , sinonChai = require('sinon-chai')
   , array     = []
 
-withAdvice = require('./../lib/withAdvice')
+withAdvice = require('./../../lib/withAdvice')
 
 chai.use(sinonChai)
 
