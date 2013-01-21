@@ -24,9 +24,29 @@ describe('after', function() {
       expect(this.value).to.equal(1)
     })
 
-    var result = obj.method('foo')
+    obj.method('foo')
     obj.value.should.equal(1)
-    result.should.equal(obj.value)
+  })
+
+  it('returns the return value of the advice if the advice returns a value', function() {
+    var obj = new Fixture
+
+    obj.after('method', function(res) {
+      return res + ' from the after advice'
+    })
+
+    obj.method('foo').should.equal('1 from the after advice')
+  })
+
+  it('returns the return value of the adviced method if the advice returns nothing', function() {
+    var obj = new Fixture
+
+    obj.after('method', function() {
+      this.afterRun = true
+      return;
+    })
+
+    obj.method('foo').should.equal(1)
   })
 
   it('calls the advice with the return value from the adviced function', function() {
@@ -72,7 +92,6 @@ describe('after', function() {
 
     var result = obj.method('foo')
     obj.value.should.equal(1)
-    result.should.equal(obj.value)
   })
 
 })

@@ -1,91 +1,100 @@
 var withAdvice = require('./..');
 
-// # Storage Example
-//
-// Build the base for the prototype (encode and decode will be attached to the prototype when calling withAdvice.compose).
-//
+/* Storage Example
+ * =============== */
 
-function baseStorage() {
-  this.initialize = function(attrs) {
-    if (!this.namespace) {
-      throw new TypeError('Missing "namespace" attribute.');
+// Storage
+// =======
+function Storage() {
+  this.initialize.call(this, arguments)
+}
+
+Storage.prototype.initialize = function(attrs) {
+  for (var prop in attrs) {
+    if (attrs.hasOwnProperty(prop)) {
+      this[prop] = attrs[prop]
     }
-  };
-
-  this.encode = function(item) { return JSON.stringify(item) };
-  this.decode = function(item) { return JSON.parse(item) };
-
-  if (!('undefined' == typeof window) && window.localStorage) {
-    storageEngine.call(this);
-    return;
   }
-};
+}
 
-//
-// Build a storage engine:
-//
+withAdvice.call(Storage.prototype)
+baseStorage.call(Storage.prototype)
+
+
+// Base Storage
+// ============
+function baseStorage() {
+  this.encode = function(item) { return JSON.stringify(item) }
+  this.decode = function(item) { return JSON.parse(item) }
+
+  memoryStorageEngine.call(this)
+
+  if (typeof window !== 'undefined' && window.localStorage) {
+    localStorageEngine.call(this)
+  }
+
+  return this;
+}
+
+// Local Storage Engine
+// ====================
 
 function localStorageEngine() {
   this.getItem = function(key) {
-    return this.decode(localStorage.getItem(this.namespace + key));
-  };
+    return this.decode(localStorage.getItem(this.namespace + key))
+  }
 
   this.setItem = function(key, val) {
-    return localStorage.setItem(this.namespace + key, this.encode(val));
-  };
-};
+    return localStorage.setItem(this.namespace + key, this.encode(val))
+  }
 
-//
-// Build an alternate storage engine:
-//
+  return this;
+}
+
+
+
+// Memory Storage Engine
+// =====================
 
 function memoryStorageEngine() {
-  var store = {};
+  var store = {}
 
   this.after('initialize', function() {
-    this.store = store[this.namespace] = store[this.namespace] || {};
-  });
+    this.store = store[this.namespace] = store[this.namespace] || {}
+  })
 
   this.getItem = function(key) {
-    return this.decode(this.store[this.namespace + key]);
-  };
+    return this.decode(this.store[this.namespace + key])
+  }
 
   this.setItem = function(key, val) {
-    return this.store[this.namespace + val] = this.encode(val);
-  };
-};
+    return this.store[this.namespace + val] = this.encode(val)
+  }
+
+  return this;
+}
 
 
-//
-// Build an aspect for encryption:
-//
+
+
+
+// Add encryption to storage engines
+// =================================
 
 function withEncryption() {
-  this.after('initialize', function(attrs) {
-    if (!this.secret) {
-      throw new TypeError('Missing "secret" attribute.');
-    }
-  });
-
   this.around('decode', function(decode, item) {
-    return decode(aes.dec(val, this.secret));
-  });
+    return decode(aes.enc(item, this.secret))
+  })
 
   this.around('encode', function(encode, item) {
-    return aes.enc(encode(val), this.secret);
-  });
-};
+    return aes.enc(encode(val), this.secret)
+  })
 
+  return this;
+}
 
-//
-// Apply and compose the different aspects to compose constructor functions:
-//
-
-var LocalStorage = withAdvice.compose(baseStorage, localStorageEngine, withEncryption);
-var MemoryStorage = withAdvice.compose(baseStorage, memoryStorageEngine, withEncryption);
-
-var localStorage  = new LocalStorage({namespace: 'withAdviceLibrary', secret: '1234'});
-var memoryStorage = new MemoryStorage({namespace: 'withAdviceLibrary', secret: '1234'});
+var storage = new Storage({namespace: 'namespace'})
+var encryptedStorage = withEncryption.call(new Storage({namespace: 'encrypted', secret: 'secret'}))
 
 // Inspect the results
 debugger;

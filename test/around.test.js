@@ -24,17 +24,32 @@ describe('around', function() {
       expect(this).to.equal(obj)
       adviced.should.be.a('function')
 
-      var res = adviced.call(this)
-
-      expect(foo).to.equal('foo')
-      expect(bar).to.equal('bar')
-
-      return res
+      adviced.call(this)
     })
 
-    var result = obj.method('foo', 'bar')
+    obj.method('foo', 'bar')
     obj.value.should.equal(1)
-    result.should.equal(obj.value)
+  })
+
+  it('returns the return value of the advice', function() {
+    var obj = new Fixture
+
+    obj.around('method', function(adviced) {
+      return 'baz'
+    })
+
+    obj.method().should.equal('baz')
+  })
+
+  it('yields the method arguments', function() {
+    var obj = new Fixture
+
+    obj.around('method', function(adviced, foo, bar) {
+      expect(foo).to.equal('foo')
+      expect(bar).to.equal('bar')
+    })
+
+    obj.method('foo', 'bar')
   })
 
   it('invokes advice in a LIFO order', function() {
