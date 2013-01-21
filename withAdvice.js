@@ -14,15 +14,21 @@
 
   /* withAdvice
    * Extend an object with AOP methods 'before', 'after', 'around'
+   * Optionally pass a list of mixins to apply to the object
    * ============================================================= */
   function withAdvice(){
     this.before = before
     this.after  = after
     this.around = around
+
+    slice.call(arguments).forEach(function(mixin){
+      mixin.call(this)
+    }, this)
+
+    return this
   }
 
-  withAdvice.version = '0.0.3'
-  withAdvice.compose = compose
+  withAdvice.version = '0.0.4'
   withAdvice.before  = before
   withAdvice.after   = after
   withAdvice.around  = around
@@ -40,11 +46,12 @@
 
   function doAfter(aspect, fn) {
     return function() {
-      var args = slice.call(arguments)
-      var result = fn.apply(this, args)
+      var args   = slice.call(arguments)
+        , result = fn.apply(this, args)
+
       if (result) args.unshift(result)
-      aspect.apply(this, args)
-      return result
+      var res = aspect.apply(this, args)
+      return res ? res : result
     }
   }
 
@@ -54,15 +61,6 @@
       args.unshift(fn)
       return aspect.apply(this, args)
     }
-  }
-
-  function compose() {
-    var args = slice.call(arguments)
-      , base = args.shift()
-
-    withAdvice.call(base)
-    args.forEach(function(mixin) {mixin.call(base)})
-    return base
   }
 
 }(this);

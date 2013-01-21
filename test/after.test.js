@@ -1,4 +1,4 @@
-require('./helper')
+if(typeof require !== 'undefined') require('./helper')
 
 function Fixture(){
   this.value = 0
