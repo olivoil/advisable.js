@@ -51,7 +51,7 @@
 
       if (result) args.unshift(result)
       var res = aspect.apply(this, args)
-      return res ? res : result
+      return res || result
     }
   }
 
