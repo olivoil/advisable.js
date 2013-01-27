@@ -1,54 +1,195 @@
 if(typeof require !== 'undefined') require('./support/helper')
 
-function Fixture(){
-  this.value = 0
-}
-
-Fixture.prototype = {
-  method: function() {
-    return ++this.value
-  }
-}
-
-withAdvice.call(Fixture.prototype)
-
 describe('before', function() {
-  it('calls the advice before the adviced method', function() {
-    var obj = new Fixture
+  beforeEach(function(done) {
+    this.Fixture = function(){ this.value = 0 }
+    this.Fixture.prototype.test = function() { return ++this.value }
+    withAdvice.call(this.Fixture.prototype)
+    done()
+  })
 
-    obj.before('method', function(arg) {
-      expect(this).to.equal(obj)
-      expect(arg).to.equal('foo')
+  it('calls the advice before the actual function', function() {
+    this.Fixture.prototype.before('test', function() {
       expect(this.value).to.equal(0)
     })
 
-    var result = obj.method('foo')
-    obj.value.should.equal(1)
-    result.should.equal(obj.value)
+    var fixture = new this.Fixture
+    fixture.test('foo')
+    fixture.value.should.equal(1)
+  })
+
+  it('calls the advice with the adviced object as this', function(done) {
+    var fixture = new this.Fixture
+    fixture.before('test', function() { expect(this).to.equal(fixture); done() })
+    fixture.test()
+  })
+
+  it('returns the original function return value', function() {
+    var fixture = new this.Fixture
+    fixture.before('test', function() { return null })
+    fixture.test().should.equal(1)
   })
 
   it('invokes advice in a LIFO order', function() {
-    var obj     = new Fixture
-      , counter = 0
+    var fixture = new this.Fixture
+    , counter = 0
+    , spy = sinon.spy()
 
-    obj.before('method', function(arg) {
+    fixture
+    .before('test', function() {
       expect(this.value).to.equal(0)
       expect(counter++).to.equal(2)
+      spy()
     })
-
-    obj.before('method', function(arg) {
+    .before('test', function() {
       expect(this.value).to.equal(0)
       expect(counter++).to.equal(1)
+      spy()
     })
-
-    obj.before('method', function(arg) {
+    .before('test', function() {
       expect(this.value).to.equal(0)
       expect(counter++).to.equal(0)
+      spy()
     })
 
-    var result = obj.method('bar')
-    obj.value.should.equal(1)
-    result.should.equal(obj.value)
+    fixture.test('bar').should.equal(fixture.value)
+    fixture.value.should.equal(1)
+    spy.should.have.been.calledThrice
   })
 
+  describe('when async', function() {
+    it('wait for async tests to finish running before calling the original function', function(done) {
+      var fixture = new this.Fixture
+        , spy = sinon.spy()
+
+      fixture.before('test', function() {
+        setTimeout(function(){ spy(); done() }, 1)
+      }).before('test', function(next) {
+        setTimeout(function(){ spy(); next() }, 1)
+      }).before('test', function(next) {
+        setTimeout(function(){ spy(); next() }, 1)
+      })
+
+      fixture.test()
+    })
+
+    it('can take 2 async arguments to process before advice in parallel', function() {
+      var fixture   = new this.Fixture
+        , firstSpy  = sinon.spy()
+        , secondSpy = sinon.spy()
+
+      fixture.before('test', function(done){
+        firstSpy.should.not.have.been.called
+        secondSpy()
+        done()
+      }).before('test', function(next, done){
+        next()
+        firstSpy()
+        done()
+      })
+
+      fixture.test()
+      firstSpy.should.have.been.called
+      secondSpy.should.have.been.called
+    })
+
+    describe('when done is called with an error', function() {
+
+      it('calls the error callback', function(done) {
+        var fixture = new this.Fixture
+          , err = new Error('async error')
+
+        fixture.before('test', function(next) {
+          next(err)
+        }, function(error) {
+          error.should.equal(err)
+          done()
+        })
+
+        fixture.test()
+      })
+
+      it('if a callback is provided and an error is thrown, it passes the error to the callback', function(done) {
+        var fixture = new this.Fixture
+        , err = new Error('async error')
+
+        fixture.before('test', function(done) { done(err) })
+
+        fixture.test(function(error){
+          error.should.equal(err)
+          done()
+        })
+      })
+
+      it('throws back the error if there is no error callback', function(done) {
+        var fixture = new this.Fixture
+        , err = new Error('async error')
+
+        try {
+          fixture.before('test', function(next) { next(err) })
+          fixture.test('foo')
+        } catch(e){
+          e.should.equal(err)
+          done()
+        }
+      })
+
+      xit('throws after a certain timeout', function(done) {
+        var fixture = new this.Fixture
+        fixture.before('test', function(next){ setTimeout(next, 200) }, 100)
+
+        fixture.test(function(err) {
+          e.should.be.instanceof(Error)
+          e.message.should.equal('timeout of 100ms exceeded')
+          done()
+        })
+      })
+    })
+  })
+
+  describe('when sync', function() {
+    it('proceeds right away', function() {
+      var fixture = new this.Fixture
+      , spy     = sinon.spy()
+
+      fixture.before('test', function() { setTimeout(spy, 300) }).before('test', function() { setTimeout(spy, 300) })
+      fixture.test()
+      spy.should.not.have.been.called
+    })
+
+    describe('when an error is thrown', function() {
+      it('calls the error callback if an error is thrown', function(done) {
+        var fixture = new this.Fixture
+          , err = new Error
+
+        fixture.before('test', function() { throw err }, function(error) {
+          error.should.equal(err)
+          done()
+        })
+
+        fixture.test()
+      })
+
+      it('if a callback is provided and an error is thrown, it passes the error to the callback', function(done) {
+        var fixture = new this.Fixture
+          , err = new Error
+
+        fixture.before('test', function() { throw err })
+
+        fixture.test(function(error){
+          error.should.equal(err)
+          done()
+        })
+      })
+
+      it('throws back the error if there is no error callback', function(done) {
+        var fixture = new this.Fixture
+          , err = new Error
+
+        fixture.before('test', function() { throw err })
+        try { fixture.test() }
+        catch(e) { e.should.equal(err); done() }
+      })
+    })
+  })
 })

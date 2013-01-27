@@ -19,7 +19,7 @@ describe('withAdvice', function() {
     expect(this.Fixture.prototype.after).to.exist
   })
 
-  it('defines this.around', function() {
+  xit('defines this.around', function() {
     expect(this.Fixture.prototype.around).to.not.exist
     withAdvice.call(this.Fixture.prototype)
     expect(this.Fixture.prototype.around).to.exist
