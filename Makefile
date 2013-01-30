@@ -3,10 +3,9 @@ TESTS = $(shell find test -name "*.test.js")
 MOCHA_REPORTER = spec
 TEST_FILE = test/support/tests.html
 
-all: test clean build
-
-build: withAdvice.js withAdvice.min.js
+all: clean build test
 test: test_node test_browser
+build: withAdvice.js withAdvice.min.js
 
 withAdvice.js: $(SRC)
 	cat $^ > $@
@@ -20,7 +19,7 @@ test_node:
 		--bail \
 		$(TESTS)
 
-test_browser: build
+test_browser:
 	@NODE_ENV=test ./node_modules/mocha-phantomjs/bin/mocha-phantomjs \
 		--reporter $(MOCHA_REPORTER) \
 		$(TEST_FILE)
@@ -28,4 +27,4 @@ test_browser: build
 clean:
 	rm -f withAdvice{,.min}.js
 
-.PHONY: test_node clean
+.PHONY: test_node
