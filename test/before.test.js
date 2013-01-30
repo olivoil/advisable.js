@@ -74,7 +74,7 @@ describe('before', function() {
       fixture.test()
     })
 
-    xit('handles error with next', function(over) {
+    it('handles error with next', function(over) {
       var fixture = new this.Fixture
         , err = new Error('fixture error')
 
