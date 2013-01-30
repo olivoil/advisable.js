@@ -1,6 +1,7 @@
 if(typeof require !== 'undefined') require('./support/helper')
 
 describe('after', function() {
+
   beforeEach(function() {
     this.Fixture = function(){ this.value = 0 }
     this.Fixture.prototype.test = function() { return ++this.value }
