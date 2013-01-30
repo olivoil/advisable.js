@@ -58,19 +58,50 @@ describe('before', function() {
   })
 
   describe('when async', function() {
-    it('wait for async tests to finish running before calling the original function', function(done) {
+    it('wait for async tests to finish running before calling the original function', function(over) {
       var fixture = new this.Fixture
         , spy = sinon.spy()
 
-      fixture.before('test', function() {
-        setTimeout(function(){ spy(); done() }, 1)
-      }).before('test', function(next) {
-        setTimeout(function(){ spy(); next() }, 1)
-      }).before('test', function(next) {
-        setTimeout(function(){ spy(); next() }, 1)
+      fixture
+      .before('test', function() { spy() })
+      .before('test', function(next) { spy(); next() })
+      .before('test', function(next, done) {
+        next();
+        setTimeout(function(){ spy.should.have.been.calledThrice; done(); over(); }, 5)
       })
+      .before('test', function(next, done) { spy(); done() })
 
       fixture.test()
+    })
+
+    xit('handles error with next', function(over) {
+      var fixture = new this.Fixture
+        , err = new Error('fixture error')
+
+      fixture.before('test', function(next, done) {
+        next(err)
+        done()
+      })
+
+      fixture.test(function(e){
+        expect(e).to.equal(err)
+        over()
+      })
+    })
+
+    it('handles error with done', function(over) {
+      var fixture = new this.Fixture
+        , err = new Error('fixture error')
+
+      fixture.before('test', function(next, done) {
+        next()
+        done(err)
+      })
+
+      fixture.test(function(e){
+        expect(e).to.equal(err)
+        over()
+      })
     })
 
     it('can take 2 async arguments to process before advice in parallel', function() {
