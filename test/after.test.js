@@ -18,6 +18,15 @@ describe('after', function() {
     expect(fixture.value).to.equal(1)
   })
 
+  it('returns the original return value', function() {
+    var spy = sinon.spy()
+      , fixture = withAdvice.call({test: function(arg){ return 'ok'}})
+
+    fixture.after('test', function(){ spy(); return 'not ok' })
+    fixture.test().should.equal('ok')
+    spy.should.have.been.called
+  })
+
   it('calls the advice in a FIFO order', function(done) {
     var fixture = new this.Fixture
       , counter = 0
@@ -71,7 +80,7 @@ describe('after', function() {
       })
     })
 
-    it('handles error with callback', function(over) {
+    it('handles error with a callback', function(over) {
       var fixture = new this.Fixture
         , err = new Error('fixture error')
 
