@@ -228,16 +228,16 @@ describe('before', function() {
     })
   })
 
-  it('can be called on regular objects', function() {
+  it('can be called on regular objects', function(done) {
     var fixture = withAdvice.call({value: 0, test: function(){ return ++this.value }})
-    fixture.before('test', function(){ expect(this.value).to.equal(0) })
+    fixture.before('test', function(){ expect(this.value).to.equal(0); done(); })
     fixture.test()
   })
 
   it('can be called on a constructor', function(done) {
     function Fix() { this.value = 0 }
     Fix.test = function test() { return 'test' }
-    withAdvice.call(Fix, function() { this.before('test', function() { done(); })})
+    withAdvice.call(Fix, function() { this.before('test', function() { expect(this).to.equal(Fix); done(); })})
     Fix.test()
   })
 
