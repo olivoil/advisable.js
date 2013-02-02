@@ -61,7 +61,45 @@ describe('before', function() {
     spy.should.have.been.calledThrice
   })
 
-  describe('when async', function() {
+  it('can be called on regular objects', function(done) {
+    var fixture = withAdvice.call({value: 0, test: function(){ return ++this.value }})
+    fixture.before('test', function(){ expect(this.value).to.equal(0); done(); })
+    fixture.test()
+  })
+
+  it('can be called on a constructor', function(done) {
+    function Fix() { this.value = 0 }
+    Fix.test = function test() { return 'test' }
+    withAdvice.call(Fix, function() { this.before('test', function() { expect(this).to.equal(Fix); done(); })})
+    Fix.test()
+  })
+
+  it('can be called on a prototype', function(done) {
+    function Fix() { this.value = 1 }
+    Fix.prototype.test = function() { return ++this.value }
+    var fix = new Fix()
+    withAdvice.call(Fix.prototype, function(){ this.before('test', function(){ expect(this).to.equal(fix); expect(this.value).to.equal(1); done() }) })
+    fix.test()
+  })
+
+  it('has access to the original arguments', function(over) {
+    function Fix(){}
+    withAdvice.call(Fix.prototype)
+    Fix.prototype.test = function test() {}
+
+    var fix = new Fix
+      , args = ['foo', 'bar', 'baz']
+      , verify = function(arg, i) { [].slice.call(arg, i).forEach(function(arg, i) { arg.should.equal(args[i]) }) }
+
+    fix
+    .before('test', function()           { verify(arguments, 0); over() })
+    .before('test', function(next)       { verify(arguments, 1); next() })
+    .before('test', function(next, done) { verify(arguments, 2); done() })
+
+    fix.test.apply(fix, args)
+  })
+
+  describe('async flow', function() {
     it('wait for async tests to finish running before calling the original function', function(over) {
       var fixture = new this.Fixture
         , spy = sinon.spy()
@@ -226,26 +264,5 @@ describe('before', function() {
         catch(e) { e.should.equal(err); done() }
       })
     })
-  })
-
-  it('can be called on regular objects', function(done) {
-    var fixture = withAdvice.call({value: 0, test: function(){ return ++this.value }})
-    fixture.before('test', function(){ expect(this.value).to.equal(0); done(); })
-    fixture.test()
-  })
-
-  it('can be called on a constructor', function(done) {
-    function Fix() { this.value = 0 }
-    Fix.test = function test() { return 'test' }
-    withAdvice.call(Fix, function() { this.before('test', function() { expect(this).to.equal(Fix); done(); })})
-    Fix.test()
-  })
-
-  it('can be called on a prototype', function(done) {
-    function Fix() { this.value = 1 }
-    Fix.prototype.test = function() { return ++this.value }
-    var fix = new Fix()
-    withAdvice.call(Fix.prototype, function(){ this.before('test', function(){ expect(this).to.equal(fix); expect(this.value).to.equal(1); done() }) })
-    fix.test()
   })
 })
