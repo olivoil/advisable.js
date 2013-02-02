@@ -2,20 +2,24 @@ if(typeof require !== 'undefined') require('./support/helper')
 
 describe('before', function() {
   beforeEach(function(done) {
-    this.Fixture = function(){ this.value = 0 }
-    this.Fixture.prototype.test = function() { return ++this.value }
+    this.Fixture = function Fixture(){ this.value = 0 }
+    this.Fixture.prototype.test = function test() { return ++this.value }
     withAdvice.call(this.Fixture.prototype)
     done()
   })
 
   it('calls the advice before the actual function', function() {
-    this.Fixture.prototype.before('test', function() {
+    var spy = sinon.spy()
+      , fixture = new this.Fixture
+
+    fixture.before('test', function() {
       expect(this.value).to.equal(0)
+      spy()
     })
 
-    var fixture = new this.Fixture
     fixture.test('foo')
     fixture.value.should.equal(1)
+    spy.should.have.been.called
   })
 
   it('calls the advice with the adviced object as this', function(done) {
@@ -222,5 +226,26 @@ describe('before', function() {
         catch(e) { e.should.equal(err); done() }
       })
     })
+  })
+
+  it('can be called on regular objects', function() {
+    var fixture = withAdvice.call({value: 0, test: function(){ return ++this.value }})
+    fixture.before('test', function(){ expect(this.value).to.equal(0) })
+    fixture.test()
+  })
+
+  it('can be called on a constructor', function(done) {
+    function Fix() { this.value = 0 }
+    Fix.test = function test() { return 'test' }
+    withAdvice.call(Fix, function() { this.before('test', function() { done(); })})
+    Fix.test()
+  })
+
+  it('can be called on a prototype', function(done) {
+    function Fix() { this.value = 1 }
+    Fix.prototype.test = function() { return ++this.value }
+    var fix = new Fix()
+    withAdvice.call(Fix.prototype, function(){ this.before('test', function(){ expect(this).to.equal(fix); expect(this.value).to.equal(1); done() }) })
+    fix.test()
   })
 })

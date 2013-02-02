@@ -20,12 +20,9 @@ describe('after', function() {
   })
 
   it('returns the original return value', function() {
-    var spy = sinon.spy()
-      , fixture = withAdvice.call({test: function(arg){ return 'ok'}})
-
-    fixture.after('test', function(){ spy(); return 'not ok' })
+    var fixture = withAdvice.call({test: function(arg){ return 'ok'}})
+    fixture.after('test', function(){ return 'not ok' })
     fixture.test().should.equal('ok')
-    spy.should.have.been.called
   })
 
   it('calls the advice in a FIFO order', function(done) {
@@ -51,18 +48,18 @@ describe('after', function() {
   })
 
   describe('error handling', function() {
-    it('handles error with next', function(over) {
+    it('handles error with next', function(end) {
       var fixture = new this.Fixture
         , err = new Error('fixture error')
 
       fixture.after('test', function(next, done) {
         next(err)
-        done()
+        // done()
       })
 
       fixture.test(function(e){
         expect(e).to.equal(err)
-        over()
+        end()
       })
     })
 

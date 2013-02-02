@@ -6,6 +6,7 @@ withAdvice = require('./../../lib/withAdvice')
 
 chai.use(sinonChai)
 
+GLOBAL._ = require('underscore')
 assert = chai.assert
 expect = chai.expect
 sinon  = require('sinon')

@@ -5,6 +5,7 @@
  */
 
 !function(root){
+  'use strict';
 
   var array  = []
     , slice  = array.slice
@@ -31,8 +32,6 @@
   }
 
   withAdvice.version = '0.0.6'
-  withAdvice.before  = before
-  withAdvice.after  = after
 
   function extend(obj){
     slice.call(arguments, 1).forEach(function(source) {
@@ -45,26 +44,20 @@
     return obj
   }
 
-  // Before
-  // ======
-  function before(name, fn, error, timeout) {
-    if(typeof timeout === 'undefined' && typeof error !== 'function') {
-      timeout = error
-      error = void 0
-    }
-
-    addAdvice(this, name, extend(fn, {async: !!fn.length, error: error, timeout: timeout, type: 'before'}))
+  function before(name, fn, error) {
+    addAdvice(this, name, fn, {async: !!fn.length, error: error, type: 'before'})
     return this
   }
 
-  function after(name, fn, error, timeout) {
-    if(typeof timeout === 'undefined' && typeof error !== 'function') {
-      timeout = error
-      error = void 0
-    }
-
-    addAdvice(this, name, extend(fn, {async: !!fn.length, error: error, timeout: timeout, type: 'after'}))
+  function after(name, fn, error) {
+    addAdvice(this, name, fn, {async: !!fn.length, error: error, type: 'after'})
     return this
+  }
+
+  function addAdvice(obj, name, advice, options){
+    setupAdvice(obj, name)
+    extend(advice, options)
+    obj[name]._withAdvice[options.type].push(advice)
   }
 
   // Advice Stack
@@ -74,148 +67,125 @@
     this.asyncCount = 0
   }
 
-  AdviceStack.prototype = {
-    push: function(advice){
-      this.storage.push(advice)
-      if(advice.async) this.asyncCount++
-    },
-    get: function(num){
-      if(typeof num === 'function'){
-        var res
-          , storage = this.storage
-          , iterator = function(advice){ advice._wrapped === num }
-
-        storage.forEach(function(advice) {
-          if (iterator(advice) && typeof res === 'undefined') res = advice
-        })
-
-        return res
-      }
-
-      return this.storage[num]
-    },
-    isEmpty: function(){
-      return !!this.storage.length
-    },
-    get length(){
-      return this.storage.length
-    }
+  AdviceStack.prototype.push = function(advice) {
+    this.storage.push(advice)
+    if(advice.async) this.asyncCount++
   }
 
-  function addAdvice(obj, name, advice){
-    setupAdvice(obj, name)
-    obj[name]._withAdvice[advice.type].push(advice)
+  AdviceStack.prototype.get = function(num) {
+    return this.storage[num]
+  }
+
+  AdviceStack.prototype.getLength = function(){
+    return this.storage.length
   }
 
   // Setup
   // =====
   function setupAdvice(obj, name){
-    if(typeof obj[name]['_withAdvice'] === 'undefined') {
-      setupMiddlewareEngine(obj, name)
-      setupMiddlewareStorage(obj, name)
+    if(typeof obj[name]._withAdvice === 'undefined') {
+      var fn = obj[name] || function(){}
+
+      obj[name] = function() {
+        var suite = new AdviceSuite(this, name, fn, slice.call(arguments))
+        return suite.run()
+      }
+
+      obj[name]._withAdvice = {before: new AdviceStack, after:  new AdviceStack}
     }
   }
 
-  function setupMiddlewareStorage(obj, name){
-    obj[name]._withAdvice = {
-        before: new AdviceStack
-      , after:  new AdviceStack
-      , around: new AdviceStack
+  // Advice Suite
+  // ============
+  function AdviceSuite(ctx, name, fn, args){
+    this.ctx  = ctx
+    this.name = name
+    this.fn   = fn
+    this.args = args
+    if (typeof args[args.length-1] === 'function') this.errorFallback = args[args.length-1]
+  }
+
+  AdviceSuite.prototype.run = function() {
+    this.stack = this.ctx[this.name]._withAdvice['before']
+    this.adviceCount = this.stack.getLength()
+    this.asyncLeft   = this.stack.asyncCount
+    return this.next()
+  }
+
+  AdviceSuite.prototype.done = function() {
+    if (arguments[0] instanceof Error) return this.handleError(arguments[0], this.getCurrentAdvice())
+
+    var res = this.fn.apply(this.ctx, this.args)
+
+    this.stack = this.ctx[this.name]._withAdvice['after']
+    this.asyncLeft   = this.stack.asyncCount
+
+    this.next = function next(){
+      if (arguments[0] instanceof Error) return this.handleError(arguments[0], this.getCurrentAdvice())
+
+      if (++this.adviceCount < this.stack.getLength()) {
+        var advice = this.getCurrentAdvice()
+          , args   = this.adviceArguments(advice)
+
+        return advice.apply(this.ctx, args)
+      }
+
+      return res
+    }
+
+    return this.next()
+  }
+
+  AdviceSuite.prototype.next = function() {
+    if (arguments[0] instanceof Error) return this.handleError(arguments[0], this.getCurrentAdvice())
+
+    if (--this.adviceCount >= 0) {
+      var advice = this.getCurrentAdvice()
+        , args   = this.adviceArguments(advice)
+      return advice.apply(this.ctx, args)
+    }
+    return this.done()
+  }
+
+  AdviceSuite.prototype.getCurrentAdvice = function(){
+    var advice = this.stack.get(this.adviceCount)
+    if (advice.length === 0){
+      var suite = this
+      return function syncAdvice(){
+        try { advice.apply(suite.ctx, arguments); return suite.next() }
+        catch(e) { suite.handleError(e, advice) }
+      }
+    }
+    return advice
+  }
+
+  AdviceSuite.prototype.handleError = function(err, advice) {
+    if(typeof advice.error === 'function') return advice.error.call(this.ctx, err)
+    if(typeof this.errorFallback === 'function') return this.errorFallback.call(this.ctx, err)
+    throw err
+  }
+
+  AdviceSuite.prototype.asyncDone = function(advice){
+    return function(err) {
+      if (err && err instanceof Error) return this.handleError(err, advice)
+      return --this.asyncLeft ? this.next() : this.done()
     }
   }
 
-  function setupMiddlewareEngine(obj, name) {
-    var middle = obj[name]
-
-    obj[name] = function() {
-      var self = this
-        , args = slice.call(arguments)
-        , lastArg = args[args.length-1]
-        , beforeStack = obj[name]._withAdvice['before']
-        , afterStack  = obj[name]._withAdvice['after']
-        , current = beforeStack.length
-        , currentAdvice
-        , beforeAsyncLeft = beforeStack.asyncCount
-        , afterAsyncLeft = afterStack.asyncCount
-        , res
-
-      function handleError(err, callback) {
-        if(typeof callback === 'function') return callback.call(self, err)
-        throw err
-      }
-
-      function adviceArgs(advice, next){
-        if(advice.length === 0){ return args }
-        if(advice.length === 1){ return [next].concat(args) }
-        if(advice.length === 2){ return [next, asyncDone(advice)].concat(args) }
-      }
-
-      function asyncDone(advice) {
-        return function(err){
-          if (err && err instanceof Error) return handleError(err, advice.error || lastArg)
-          var counter = advice.type === 'before' ? beforeAsyncLeft : afterAsyncLeft
-          return --counter ? next.apply(self, args) : done.apply(self, args)
-        }
-      }
-
-      function getCurrentAdvice(stack, n){
-        var advice = stack.get(n)
-        if (!advice.async) {
-          var syncAdvice = advice
-          advice = function(){
-            try { syncAdvice.apply(self); return next.call(self, args) }
-            catch(e) { handleError(e, syncAdvice.error || lastArg) }
-          }
-        }
-        return advice
-      }
-
-      var next = function next() {
-        if (arguments[0] instanceof Error) return handleError(arguments[0], beforeStack.get(current).error || lastArg)
-
-        if (--current >= 0) {
-          currentAdvice = getCurrentAdvice(beforeStack, current)
-          return currentAdvice.apply(self, adviceArgs(currentAdvice, next))
-        }
-
-        return done.apply(self, args)
-      }
-
-      function done() {
-        if (arguments[0] instanceof Error) return handleError(arguments[0], afterStack.get(current).error || lastArg)
-
-        res || (res = middle.apply(self, args))
-
-        next = function next(){
-          if (arguments[0] instanceof Error) return handleError(arguments[0], afterStack.get(current).error || lastArg)
-
-          if (++current < afterStack.length) {
-            currentAdvice = getCurrentAdvice(afterStack, current)
-            return currentAdvice.apply(self, adviceArgs(currentAdvice, next))
-          }
-
-          return res
-        }
-
-        return next.apply(self, args)
-      }
-
-      return next.apply(self, args)
-    }
+  AdviceSuite.prototype.adviceArguments = function(advice){
+    if(advice.length === 0){ return this.args }
+    if(advice.length === 1){ return [this.next.bind(this)].concat(this.args) }
+    if(advice.length === 2){ return [this.next.bind(this), this.asyncDone(advice).bind(this)].concat(this.args) }
   }
 
-
-  // Not Async Yet
-  // =============
-  withAdvice.around = around
-
-  function around(method, aspect){ this[method] = doAround(aspect, this[method]) }
-  function doAround(aspect, fn) {
-    return function() {
+  function around(method, advice){
+    var fn = this[method]
+    this[method] = function(){
       var args = [fn]
       push.apply(args, arguments)
-      return aspect.apply(this, args)
+      return advice.apply(this, args)
     }
+    return this
   }
 
 }(this);
