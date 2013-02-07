@@ -11,6 +11,7 @@
     , slice  = array.slice
     , push   = array.push
     , filter = array.filter
+    , noop   = function(){}
 
   if (typeof exports === 'undefined') { root.withAdvice = withAdvice }
   else { module.exports = withAdvice }
@@ -31,7 +32,7 @@
     return this
   }
 
-  withAdvice.version = '0.0.6'
+  withAdvice.version = '0.0.7'
 
   function extend(obj){
     slice.call(arguments, 1).forEach(function(source) {
@@ -57,7 +58,7 @@
   function addAdvice(obj, name, advice, options){
     setupAdvice(obj, name)
     extend(advice, options)
-    obj[name]._withAdvice[options.type].push(advice)
+    obj._withAdvice[name][options.type].push(advice)
   }
 
   // Advice Stack
@@ -83,15 +84,17 @@
   // Setup
   // =====
   function setupAdvice(obj, name){
-    if(typeof obj[name]._withAdvice === 'undefined') {
-      var fn = obj[name] || function(){}
+    if(typeof obj._withAdvice === 'undefined') {
+      obj._withAdvice = {}
+      obj._withAdvice[name] = {before: new AdviceStack, after:  new AdviceStack}
+
+      var fn = obj[name] || noop
 
       obj[name] = function() {
         var suite = new AdviceSuite(this, name, fn, arguments)
         return suite.run()
       }
 
-      obj[name]._withAdvice = {before: new AdviceStack, after:  new AdviceStack}
     }
   }
 
@@ -106,7 +109,7 @@
   }
 
   AdviceSuite.prototype.run = function run() {
-    this.stack = this.ctx[this.name]._withAdvice['before']
+    this.stack = this.ctx._withAdvice[this.name].before
     this.adviceCount = this.stack.getLength()
     this.asyncLeft   = this.stack.asyncCount
     return this.next()
@@ -117,7 +120,7 @@
 
     var res = this.fn.apply(this.ctx, this.args)
 
-    this.stack = this.ctx[this.name]._withAdvice['after']
+    this.stack = this.ctx._withAdvice[this.name].after
     this.asyncLeft   = this.stack.asyncCount
 
     this.next = function next(){
