@@ -6,6 +6,10 @@
   "twitter": "@oliv_oil",
   "repo": "olivoil/withadvice",
   "keywords": ["AOP", "modules", "inheritance", "aspect", "advice"],
-  "scripts": ["index.js"],
+  "main": "index.js",
+  "scripts": [
+    "index.js",
+    "lib/withAdvice.js"
+  ],
   "licence": "MIT"
 }
