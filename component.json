@@ -1,8 +1,10 @@
 {
   "name": "withadvice",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "AOP library for Node and the Browser",
+  "author": "Olivier Melcher <olivier.melcher@gmail.com>",
   "twitter": "@oliv_oil",
+  "repo": "olivoil/withadvice",
   "keywords": ["AOP", "modules", "inheritance", "aspect", "advice"],
   "scripts": ["index.js"],
   "licence": "MIT"
