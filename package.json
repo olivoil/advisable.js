@@ -1,6 +1,7 @@
 {
   "author": "Olivier Melcher <olivier.melcher@gmail.com>",
   "name": "withadvice",
+  "repo": "olivoil/withAdvice.js",
   "description": "AOP library",
   "version": "0.0.8",
   "repository": {
