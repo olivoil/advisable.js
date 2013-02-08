@@ -32,7 +32,7 @@
     return this
   }
 
-  withAdvice.version = '0.0.7'
+  withAdvice.version = '0.0.8'
 
   function extend(obj){
     slice.call(arguments, 1).forEach(function(source) {

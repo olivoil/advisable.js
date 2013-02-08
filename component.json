@@ -1,0 +1,9 @@
+{
+  "name": "withadvice",
+  "version": "0.0.8",
+  "description": "AOP library for Node and the Browser",
+  "twitter": "@oliv_oil",
+  "keywords": ["AOP", "modules", "inheritance", "aspect", "advice"],
+  "scripts": ["index.js"],
+  "licence": "MIT"
+}
