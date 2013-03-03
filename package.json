@@ -2,7 +2,7 @@
   "author": "Olivier Melcher <olivier.melcher@gmail.com>",
   "name": "withadvice",
   "description": "AOP library",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "repository": {
     "type": "git",
     "url": "git://github.com/olivoil/withAdvice.js.git"
