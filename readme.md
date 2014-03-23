@@ -1,9 +1,9 @@
-With Advice
--------------
+Advisable
+---------
 
 An Aspect-Oriented Library for javascript.
 
-[![Build Status](https://travis-ci.org/olivoil/withAdvice.js.png)](https://travis-ci.org/olivoil/withAdvice.js)
+[![Build Status](https://travis-ci.org/olivoil/advisable.png)](https://travis-ci.org/olivoil/advisable)
 
 Inspired by [@angustweets and @danwrong](https://speakerdeck.com/u/anguscroll/p/how-we-learned-to-stop-worrying-and-love-javascript)
 
@@ -15,11 +15,17 @@ Inspired by [@angustweets and @danwrong](https://speakerdeck.com/u/anguscroll/p/
 Node.js
 
 ```
-npm install withadvice
+npm install olivoil/advisable.js
 ```
 
-Browser
+OR
 
 ```
-<script src="withAdvice.min.js" type="text/javascript"></script>
+npm install advisable.js
+```
+
+Component
+
+```
+component install olivoil/advisable.js
 ```

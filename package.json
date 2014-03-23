@@ -1,12 +1,12 @@
 {
   "author": "Olivier Melcher <olivier.melcher@gmail.com>",
-  "name": "advisable",
-  "repo": "olivoil/advisable",
+  "name": "advisable.js",
+  "repo": "olivoil/advisable.js",
   "description": "AOP library",
   "version": "0.0.9",
   "repository": {
     "type": "git",
-    "url": "git://github.com/olivoil/advisable.git"
+    "url": "git://github.com/olivoil/advisable.js.git"
   },
   "devDependencies": {
     "component-test-builder": "olivoil/component-test-builder",
