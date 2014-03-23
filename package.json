@@ -3,7 +3,7 @@
   "name": "advisable.js",
   "repo": "olivoil/advisable.js",
   "description": "AOP library",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "repository": {
     "type": "git",
     "url": "git://github.com/olivoil/advisable.js.git"
