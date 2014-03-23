@@ -1,15 +1,22 @@
-if(typeof require !== 'undefined') require('./support/helper')
+
+var Advisable = require('..');
+var chai = require('chai')
+var spies = require('chai-spies');
+var Fixture;
+
+var expect = chai.expect;
+chai.use(spies);
 
 describe('after', function() {
 
   beforeEach(function() {
-    this.Fixture = function(){ this.value = 0 }
-    this.Fixture.prototype.test = function() { return ++this.value }
-    withAdvice.call(this.Fixture.prototype)
+    Fixture = function(){ this.value = 0 };
+    Fixture.prototype.test = function() { return ++this.value };
+    Advisable(Fixture.prototype);
   })
 
   it('calls the advice after the adviced method', function() {
-    var fixture = new this.Fixture
+    var fixture = new Fixture
 
     fixture.after('test', function() {
       expect(this.value).to.equal(1)
@@ -20,14 +27,14 @@ describe('after', function() {
   })
 
   it('returns the original return value', function() {
-    var fixture = withAdvice.call({test: function(arg){ return 'ok'}})
+    var fixture = Advisable({test: function(arg){ return 'ok'}});
     fixture.after('test', function(){ return 'not ok' })
-    fixture.test().should.equal('ok')
+    expect(fixture.test()).to.equal('ok')
   })
 
   it('calls the advice in a FIFO order', function(done) {
-    var fixture = new this.Fixture
-      , counter = 0
+    var fixture = new Fixture;
+    var counter = 0;
 
     fixture
     .after('test', function() {
@@ -49,12 +56,11 @@ describe('after', function() {
 
   describe('error handling', function() {
     it('handles error with next', function(end) {
-      var fixture = new this.Fixture
-        , err = new Error('fixture error')
+      var fixture = new Fixture;
+      var err = new Error('fixture error');
 
       fixture.after('test', function(next, done) {
-        next(err)
-        // done()
+        next(err);
       })
 
       fixture.test(function(e){
@@ -64,12 +70,12 @@ describe('after', function() {
     })
 
     it('handles error with done', function(over) {
-      var fixture = new this.Fixture
-        , err = new Error('fixture error')
+      var fixture = new Fixture;
+      var err = new Error('fixture error');
 
       fixture.after('test', function(next, done) {
-        next()
-        done(err)
+        next();
+        done(err);
       })
 
       fixture.test(function(e){
@@ -79,20 +85,20 @@ describe('after', function() {
     })
 
     it('handles error with a callback', function(over) {
-      var fixture = new this.Fixture
-        , err = new Error('fixture error')
+      var fixture = new Fixture;
+      var err = new Error('fixture error');
 
       fixture.after('test', function() { throw err }, function(e){
-        expect(e).to.equal(err)
-        over()
+        expect(e).to.equal(err);
+        over();
       })
 
-      fixture.test()
+      fixture.test();
     })
 
     it('handles error by throwing', function() {
-      var fixture = new this.Fixture
-        , err = new Error('fixture error')
+      var fixture = new Fixture;
+      var err = new Error('fixture error');
 
       fixture.after('test', function() { throw err })
       expect(function(){fixture.test()}).to.throw(/fixture error/)
@@ -101,8 +107,8 @@ describe('after', function() {
 
   describe('async flow', function() {
     it('waits for all async advice to finish before returning', function(over) {
-      var fixture = new this.Fixture
-        , spy = sinon.spy()
+      var fixture = new Fixture;
+      var spy = chai.spy();
 
       fixture
       .after('test', function(next, done) {
@@ -110,16 +116,16 @@ describe('after', function() {
       })
       .after('test', function(next, done) {
         next();
-        setTimeout(function(){ spy.should.have.been.calledThrice; done(); over(); }, 5)
+        setTimeout(function(){ expect(spy).to.have.been.called.exactly(3); done(); over(); }, 5);
       })
       .after('test', function(next) {
-        spy(); next()
+        spy(); next();
       })
       .after('test', function() {
-        spy()
+        spy();
       })
 
-      fixture.test()
+      fixture.test();
     })
   })
 })

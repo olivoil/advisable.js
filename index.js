@@ -1,1 +1,2 @@
-module.exports = require('./lib/withAdvice')
+
+module.exports = require('./lib/advisable');

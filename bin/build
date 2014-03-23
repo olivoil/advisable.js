@@ -1,0 +1,18 @@
+#!/usr/bin/env node
+
+/**
+ * Module dependencies.
+ */
+
+var build = require('../build');
+
+var start = new Date;
+
+build(function(err){
+ if(err) {
+   console.error(err);
+   process.exit(1);
+ }
+ console.log('built in %sms', new Date - start);
+ process.exit();
+});

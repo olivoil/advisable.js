@@ -1,15 +1,30 @@
 {
-  "name": "withadvice",
-  "version": "0.0.9",
-  "description": "AOP library for Node and the Browser",
-  "author": "Olivier Melcher <olivier.melcher@gmail.com>",
-  "twitter": "@oliv_oil",
-  "repo": "olivoil/withadvice",
+  "name": "advisable",
+  "version": "0.0.1",
+  "description": "Aspect Oriented Programming (AOP) mixin",
+  "repo": "olivoil/advisable",
   "keywords": ["AOP", "modules", "inheritance", "aspect", "advice"],
   "main": "index.js",
   "scripts": [
     "index.js",
-    "lib/withAdvice.js"
+    "lib/advisable.js",
+    "lib/namespace.js",
+    "lib/stack.js",
+    "lib/suite.js",
+    "lib/polyfill.js"
+  ],
+  "dependencies": {
+    "pluma/assimilate": "*"
+  },
+  "development": {
+    "chaijs/chai": "*",
+    "chaijs/chai-spies": "*"
+  },
+  "tests": [
+    "test/advisable.js",
+    "test/before.js",
+    "test/after.js",
+    "test/around.js"
   ],
   "licence": "MIT"
 }

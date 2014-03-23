@@ -1,30 +1,19 @@
-SRC = lib/withAdvice.js
-TESTS = $(shell find test -name "*.test.js")
-MOCHA_REPORTER = spec
-TEST_FILE = test/support/tests.html
+SRC = $(shell find ./lib -name "*.js")
+TEST = $(shell find ./test -name "*.js")
 
-all: clean build test
-test: test_node test_browser
-build: withAdvice.js withAdvice.min.js
+dist: node_modules components $(SRC) $(TEST)
+	@bin/build
 
-withAdvice.js: $(SRC)
-	cat $^ > $@
+node_modules: package.json
+	@npm install --dev
 
-withAdvice.min.js: withAdvice.js
-	uglifyjs --no-mangle $< > $@
+components: component.json
+	@./node_modules/component/bin/component install --dev
 
-test_node:
-	@NODE_ENV=test ./node_modules/mocha/bin/mocha \
-		--reporter $(MOCHA_REPORTER) \
-		--bail \
-		$(TESTS)
-
-test_browser:
-	@NODE_ENV=test ./node_modules/mocha-phantomjs/bin/mocha-phantomjs \
-		--reporter $(MOCHA_REPORTER) \
-		$(TEST_FILE)
+test: dist
+	@./node_modules/karma/bin/karma start
 
 clean:
-	rm -f withAdvice{,.min}.js
+	@rm -rf components dist
 
-.PHONY: test_node
+.PHONY: clean test

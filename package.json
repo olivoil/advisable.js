@@ -1,22 +1,24 @@
 {
   "author": "Olivier Melcher <olivier.melcher@gmail.com>",
-  "name": "withadvice",
-  "repo": "olivoil/withadvice",
+  "name": "advisable",
+  "repo": "olivoil/advisable",
   "description": "AOP library",
   "version": "0.0.9",
   "repository": {
     "type": "git",
-    "url": "git://github.com/olivoil/withadvice.git"
-  },
-  "dependencies": {
+    "url": "git://github.com/olivoil/advisable.git"
   },
   "devDependencies": {
-    "mocha": "latest",
-    "chai": "latest",
-    "sinon": "latest",
-    "sinon-chai": "latest",
-    "mocha-phantomjs": "~1.1.3",
-    "underscore": "~1.4.4"
+    "component-test-builder": "olivoil/component-test-builder",
+    "mkdirp": "~0.3.5",
+    "rimraf": "~2.2.6",
+    "promise": "~4.0.0",
+    "debug": "~0.7.4",
+    "component": "*",
+    "mocha": "~1.18.0",
+    "karma-mocha": "~0.1.3",
+    "karma": "~0.12.1",
+    "karma-chrome-launcher": "~0.1.2"
   },
   "scripts": {
     "test": "make test"
