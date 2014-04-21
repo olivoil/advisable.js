@@ -1,6 +1,5 @@
 {
   "name": "advisable.js",
-  "version": "0.1.0",
   "description": "Aspect Oriented Programming (AOP) mixin",
   "repo": "olivoil/advisable.js",
   "keywords": ["AOP", "modules", "inheritance", "aspect", "advice"],
