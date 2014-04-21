@@ -16,14 +16,16 @@
     "pluma/assimilate": "*"
   },
   "development": {
-    "chaijs/chai": "*",
-    "chaijs/chai-spies": "*"
+    "dependencies": {
+      "chaijs/chai": "*",
+      "chaijs/chai-spies": "*"
+    },
+    "scripts": [
+      "test/advisable.js",
+      "test/before.js",
+      "test/after.js",
+      "test/around.js"
+    ]
   },
-  "tests": [
-    "test/advisable.js",
-    "test/before.js",
-    "test/after.js",
-    "test/around.js"
-  ],
   "licence": "MIT"
 }
